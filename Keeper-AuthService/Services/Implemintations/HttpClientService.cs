@@ -1,9 +1,9 @@
-﻿using Keeper_ApiGateWay.Models.Services;
-using Keeper_ApiGateWay.Services.Interfaces;
+﻿using Keeper_AuthService.Models.Services;
+using Keeper_AuthService.Services.Interfaces;
 using System.Text.Json;
 
 
-namespace Keeper_ApiGateWay.Services.Implemitations
+namespace Keeper_AuthService.Services.Implemitations
 {
     public class HttpClientService : IHttpClientService
     {
@@ -78,16 +78,30 @@ namespace Keeper_ApiGateWay.Services.Implemitations
             {
                 try
                 {
-                    var data = JsonSerializer.Deserialize<T>(rawJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    return ServiceResponse<T?>.Success(data, (int)response.StatusCode);
+                    using var doc = JsonDocument.Parse(rawJson);
+                    var root = doc.RootElement;
+
+                    if (root.TryGetProperty("data", out var dataElement))
+                    {
+                        var data = JsonSerializer.Deserialize<T>(dataElement.GetRawText(), new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+
+                        return ServiceResponse<T?>.Success(data, (int)response.StatusCode);
+                    }
+
+                    return ServiceResponse<T?>.Fail(default, (int)response.StatusCode, "Ключ 'data' не найден в ответе");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    return ServiceResponse<T?>.Fail(default, (int)response.StatusCode, "Ошибка десериализации ответа");
+                    return ServiceResponse<T?>.Fail(default, (int)response.StatusCode, $"Ошибка десериализации ответа: {ex.Message}");
                 }
             }
+
             return ServiceResponse<T?>.Fail(default, (int)response.StatusCode, rawJson);
         }
+
     }
 }
 

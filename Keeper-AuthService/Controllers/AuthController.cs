@@ -16,7 +16,7 @@ namespace Keeper_AuthService.Controllers
             _authService = authService;
         }
 
-        [HttpPost("/registration")]
+        [HttpPost("registration")]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO newUser)
         {
             try

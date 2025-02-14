@@ -20,7 +20,7 @@ namespace Keeper_UserService.Repositories.Implemintations
         }
 
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T> GetByIdAsync(Guid id)
         {
             return await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == id);
         }
@@ -29,6 +29,7 @@ namespace Keeper_UserService.Repositories.Implemintations
         public async Task<T> CreateAsync(T obj)
         {
             await _appDbContext.Set<T>().AddAsync(obj);
+            await _appDbContext.SaveChangesAsync();
             return obj;
         }
 
@@ -47,7 +48,7 @@ namespace Keeper_UserService.Repositories.Implemintations
         }
 
 
-        public async Task<T> DeleteAsync(int id)
+        public async Task<T> DeleteAsync(Guid id)
         {
             T obj = await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == id);
             _appDbContext.Remove(obj);

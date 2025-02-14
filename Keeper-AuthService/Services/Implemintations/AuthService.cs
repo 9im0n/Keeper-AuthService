@@ -18,7 +18,7 @@ namespace Keeper_AuthService.Services.Implemintations
 
         public async Task<ServiceResponse<ActivationPasswords?>> Registration(CreateUserDTO newUser)
         {
-            ServiceResponse<bool> createUserResponse = await _userService.CreateAsync(newUser);
+            ServiceResponse<UsersDTO> createUserResponse = await _userService.CreateAsync(newUser);
 
             if (!createUserResponse.IsSuccess)
                 return ServiceResponse<ActivationPasswords?>.Fail(null, createUserResponse.Status, createUserResponse.Message);
