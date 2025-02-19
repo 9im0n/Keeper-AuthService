@@ -1,5 +1,4 @@
 ﻿using Keeper_AuthService.Models.Services;
-using Keeper_AuthService.Models.Db;
 using Keeper_AuthService.Models.DTO;
 using Keeper_AuthService.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +20,7 @@ namespace Keeper_AuthService.Controllers
         {
             try
             {
-                ServiceResponse<ActivationPasswords> response = await _authService.Registration(newUser);
+                ServiceResponse<UsersDTO?> response = await _authService.Registration(newUser);
                 
                 if (!response.IsSuccess)
                     return StatusCode(statusCode: response.Status, new { message = response.Message });
