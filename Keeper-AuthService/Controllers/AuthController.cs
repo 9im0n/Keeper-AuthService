@@ -32,5 +32,24 @@ namespace Keeper_AuthService.Controllers
                 return Problem(statusCode: 500, detail: ex.Message);
             }
         }
+
+
+        [HttpPost("activation")]
+        public async Task<IActionResult> Activation([FromBody] UserActivationDTO activation)
+        {
+            try
+            {
+                ServiceResponse<UsersDTO?> response = await _authService.UserActivation(activation);
+
+                if (!response.IsSuccess)
+                    return StatusCode(statusCode: response.Status, new { message = response.Message });
+
+                return StatusCode(statusCode: response.Status, new { message = response.Message });
+            }
+            catch (Exception ex)
+            {
+                return Problem(statusCode: 500, detail: ex.Message);
+            }
+        }
     }
 }

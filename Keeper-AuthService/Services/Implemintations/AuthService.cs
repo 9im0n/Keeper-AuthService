@@ -22,5 +22,11 @@ namespace Keeper_AuthService.Services.Implemintations
 
             return ServiceResponse<UsersDTO?>.Success(createUserResponse.Data, 201, createUserResponse.Message);
         }
+
+
+        public async Task<ServiceResponse<UsersDTO?>> UserActivation(UserActivationDTO activation)
+        {
+            return await _userService.ActivateUser(activation);
+        }
     }
 }

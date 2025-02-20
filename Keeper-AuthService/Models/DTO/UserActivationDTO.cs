@@ -2,17 +2,14 @@
 
 namespace Keeper_AuthService.Models.DTO
 {
-    public class CreateUserDTO
+    public class UserActivationDTO
     {
         [Required]
         [EmailAddress]
         public string Email { get; set; }
 
-        [Required]
-        [MinLength(8)]
-        public string Password { get; set; }
 
         [Required]
-        public string Confirm { get; set; }
+        public string ActivationPassword { get; set; }
     }
 }

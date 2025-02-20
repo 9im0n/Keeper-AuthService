@@ -21,5 +21,11 @@ namespace Keeper_AuthService.Services.Implemintations
         {
             return await _httpClientService.PostAsync<CreateUserDTO, UsersDTO?>($"{_api}/users/registration", newUser);
         }
+
+
+        public async Task<ServiceResponse<UsersDTO?>> ActivateUser(UserActivationDTO activation)
+        {
+            return await _httpClientService.PostAsync<UserActivationDTO, UsersDTO?>($"{_api}/users/activate", activation);
+        }
     }
 }
