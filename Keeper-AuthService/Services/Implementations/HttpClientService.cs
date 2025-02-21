@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Text.Json;
 
 
-namespace Keeper_AuthService.Services.Implemitations
+namespace Keeper_AuthService.Services.Implementations
 {
     public class HttpClientService : IHttpClientService
     {

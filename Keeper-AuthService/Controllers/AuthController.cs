@@ -15,6 +15,7 @@ namespace Keeper_AuthService.Controllers
             _authService = authService;
         }
 
+
         [HttpPost("registration")]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO newUser)
         {
@@ -26,6 +27,25 @@ namespace Keeper_AuthService.Controllers
                     return StatusCode(statusCode: response.Status, new { message = response.Message });
 
                 return Created();
+            }
+            catch (Exception ex)
+            {
+                return Problem(statusCode: 500, detail: ex.Message);
+            }
+        }
+
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO login)
+        {
+            try
+            {
+                ServiceResponse<string?> response = await _authService.Login(login);
+
+                if (!response.IsSuccess)
+                    return StatusCode(statusCode: response.Status, new { message = response.Message });
+
+                return Ok(new { data = response.Data, message = response.Message });
             }
             catch (Exception ex)
             {
