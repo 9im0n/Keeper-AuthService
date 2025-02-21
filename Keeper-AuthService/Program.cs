@@ -1,8 +1,10 @@
-using Keeper_AuthService.Services.Implemitations;
+using Keeper_AuthService.Services.Implementations;
 using Keeper_AuthService.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Keeper_AuthService.Models.Services;
-using Keeper_AuthService.Services.Implemintations;
+using Keeper_AuthService.Models.Settings;
+using Keeper_AuthService.DB;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Keeper_AuthService
 {
@@ -16,10 +18,17 @@ namespace Keeper_AuthService
             builder.Services.AddHttpClient<IHttpClientService, HttpClientService>();
             builder.Services.Configure<ApiUrls>(builder.Configuration.GetSection("ApiUrls"));
 
-            // Services
+            // Configuration
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
+            //Db
+            string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
+
+            // Services
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IJwtService, JwtService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

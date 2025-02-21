@@ -7,5 +7,6 @@ namespace Keeper_AuthService.Services.Interfaces
     {
         public Task<ServiceResponse<UsersDTO?>> CreateAsync(CreateUserDTO newUser);
         public Task<ServiceResponse<UsersDTO?>> ActivateUser(UserActivationDTO activation);
+        public Task<ServiceResponse<UsersDTO?>> GetByEmailAsync(string email);
     }
 }
