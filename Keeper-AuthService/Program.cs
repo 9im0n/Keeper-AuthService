@@ -4,6 +4,8 @@ using Keeper_AuthService.Models.Services;
 using Keeper_AuthService.Models.Settings;
 using Keeper_AuthService.DB;
 using Microsoft.EntityFrameworkCore;
+using Keeper_AuthService.Repositories.Interfaces;
+using Keeper_AuthService.Repositories.Implementations;
 
 
 namespace Keeper_AuthService
@@ -25,9 +27,14 @@ namespace Keeper_AuthService
             string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
 
+            // Repositories
+            builder.Services.AddScoped<IRefreshTokensRepository, RefreshTokensRepository>();
+
+
             // Services
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             builder.Services.AddScoped<IJwtService, JwtService>();
 
             builder.Services.AddControllers();

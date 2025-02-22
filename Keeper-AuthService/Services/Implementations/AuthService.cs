@@ -9,11 +9,13 @@ namespace Keeper_AuthService.Services.Implementations
     {
         private readonly IUserService _userService;
         private readonly IJwtService _jwtService;
+        private readonly IRefreshTokenService _refreshTokenService;
 
-        public AuthService(IUserService userService, IJwtService jwtService)
+        public AuthService(IUserService userService, IJwtService jwtService, IRefreshTokenService refreshTokenService)
         {
             _userService = userService;
             _jwtService = jwtService;
+            _refreshTokenService = refreshTokenService;
         }
 
         public async Task<ServiceResponse<UsersDTO?>> Registration(CreateUserDTO newUser)
@@ -27,20 +29,29 @@ namespace Keeper_AuthService.Services.Implementations
         }
 
 
-        public async Task<ServiceResponse<string?>> Login(LoginDTO login)
+        public async Task<ServiceResponse<TokensDTO?>> Login(LoginDTO login)
         {
             ServiceResponse<UsersDTO?> userResponse = await _userService.GetByEmailAsync(login.Email);
 
             if (!userResponse.IsSuccess)
-                return ServiceResponse<string?>.Fail(default, userResponse.Status, userResponse.Message);
+                return ServiceResponse<TokensDTO?>.Fail(default, userResponse.Status, userResponse.Message);
 
             if (!userResponse.Data.IsActive)
-                return ServiceResponse<string?>.Fail(default, 400, "User isn't activ");
+                return ServiceResponse<TokensDTO?>.Fail(default, 400, "User isn't activ");
 
             if (userResponse.Data?.Password != login.Password)
-                return ServiceResponse<string?>.Fail(default, 400, "Passwords doesn't match.");
+                return ServiceResponse<TokensDTO?>.Fail(default, 400, "Passwords doesn't match.");
 
-            return await _jwtService.GenerateToken(userResponse.Data);
+            ServiceResponse<string?> jwtToken = await _jwtService.GenerateTokenAsync(userResponse.Data);
+            ServiceResponse<string> refreshToken = await _refreshTokenService.CreateAsync(userResponse.Data.Id);
+
+            TokensDTO response = new TokensDTO()
+            {
+                AccessToken = jwtToken.Data,
+                RefreshToken = refreshToken.Data
+            };
+
+            return ServiceResponse<TokensDTO?>.Success(response);
         }
 
 
