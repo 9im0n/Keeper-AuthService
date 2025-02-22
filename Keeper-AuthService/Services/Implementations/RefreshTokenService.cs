@@ -25,6 +25,14 @@ namespace Keeper_AuthService.Services.Implementations
 
         public async Task<ServiceResponse<string>> CreateAsync(Guid userId)
         {
+            RefreshTokens? oldToken = await _refreshTokensRepository.GetByUserIdAsync(userId);
+
+            if (oldToken != null)
+            {
+                oldToken.Revoked = true;
+                await _refreshTokensRepository.UpdateAsync(oldToken);
+            }
+
             string token = GenerateToken();
 
             RefreshTokens refreshToken = new RefreshTokens()

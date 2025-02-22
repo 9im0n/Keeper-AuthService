@@ -7,7 +7,7 @@ namespace Keeper_AuthService.DB
     public class AppDbContext : DbContext
     {
         // Tables
-        public DbSet<RefreshTokens> RefreshTokens;
+        public DbSet<RefreshTokens> RefreshTokens { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     }
