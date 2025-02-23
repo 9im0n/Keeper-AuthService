@@ -1,6 +1,7 @@
 ﻿using Keeper_AuthService.Models.Services;
 using Keeper_AuthService.Models.DTO;
 using Keeper_AuthService.Services.Interfaces;
+using Keeper_AuthService.Models.DB;
 
 
 namespace Keeper_AuthService.Services.Implementations
@@ -58,6 +59,22 @@ namespace Keeper_AuthService.Services.Implementations
         public async Task<ServiceResponse<UsersDTO?>> UserActivation(UserActivationDTO activation)
         {
             return await _userService.ActivateUser(activation);
+        }
+
+
+        public async Task<ServiceResponse<string?>> UpdateJwt(UpdateJwtDTO updateJwt)
+        {
+            ServiceResponse<RefreshTokens?> rtResponse = await _refreshTokenService.ValidateTokenAsync(updateJwt.RefreshToken);
+
+            if (!rtResponse.IsSuccess)
+                return ServiceResponse<string?>.Fail(default, rtResponse.Status, rtResponse.Message);
+
+            ServiceResponse<UsersDTO?> user = await _userService.GetByEmailAsync(updateJwt.Email);
+
+            if (!user.IsSuccess)
+                return ServiceResponse<string?>.Fail(default, user.Status, user.Message);
+
+            return await _jwtService.GenerateTokenAsync(user.Data);
         }
     }
 }

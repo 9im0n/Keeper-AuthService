@@ -71,5 +71,24 @@ namespace Keeper_AuthService.Controllers
                 return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}");
             }
         }
+
+
+        [HttpPost("jwt/update")]
+        public async Task<IActionResult> UpdateJwt([FromBody] UpdateJwtDTO updateJwt)
+        {
+            try
+            {
+                ServiceResponse<string?> response = await _authService.UpdateJwt(updateJwt);
+
+                if (!response.IsSuccess)
+                    return StatusCode(statusCode: response.Status, new { message = response.Message });
+
+                return Ok(new { data = response.Data, message = response.Message });
+            }
+            catch (Exception ex)
+            {
+                return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}");
+            }
+        }
     }
 }

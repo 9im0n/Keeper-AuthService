@@ -8,5 +8,6 @@ namespace Keeper_AuthService.Services.Interfaces
         public Task<ServiceResponse<UsersDTO?>> Registration(CreateUserDTO newUser);
         public Task<ServiceResponse<TokensDTO?>> Login(LoginDTO login);
         public Task<ServiceResponse<UsersDTO?>> UserActivation(UserActivationDTO activation);
+        public Task<ServiceResponse<string?>> UpdateJwt(UpdateJwtDTO updateJwt);
     }
 }
