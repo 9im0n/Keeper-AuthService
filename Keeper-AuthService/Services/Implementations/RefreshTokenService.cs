@@ -25,7 +25,7 @@ namespace Keeper_AuthService.Services.Implementations
 
         public async Task<ServiceResponse<string>> CreateAsync(Guid userId)
         {
-            RefreshTokens? oldToken = await _refreshTokensRepository.GetByUserIdAsync(userId);
+            RefreshTokens? oldToken = await _refreshTokensRepository.GetValidTokenByUserId(userId);
 
             if (oldToken != null)
             {
@@ -50,21 +50,21 @@ namespace Keeper_AuthService.Services.Implementations
 
         public async Task<ServiceResponse<RefreshTokens?>> RevokeTokenAsync(Guid userId)
         {
-            RefreshTokens? refreshToken = await _refreshTokensRepository.GetByUserIdAsync(userId);
+            ICollection<RefreshTokens> refreshToken = await _refreshTokensRepository.GetByUserIdAsync(userId);
+            
+            foreach (RefreshTokens refreshTokenItem in refreshToken)
+            {
+                refreshTokenItem.Revoked = true;
+                await _refreshTokensRepository.UpdateAsync(refreshTokenItem);
+            }
 
-            if (refreshToken == null)
-                return ServiceResponse<RefreshTokens?>.Fail(default, 404, "This user doesn't have refresh token.");
-
-            refreshToken.Revoked = true;
-            await _refreshTokensRepository.UpdateAsync(refreshToken);
-
-            return ServiceResponse<RefreshTokens?>.Success(refreshToken);
+            return ServiceResponse<RefreshTokens?>.Success(default);
         }
 
 
         public async Task<ServiceResponse<RefreshTokens?>> ValidateTokenAsync(string token)
         {
-            RefreshTokens? refreshTokens = await _refreshTokensRepository.GetValidToken(HashToken(token));
+            RefreshTokens? refreshTokens = await _refreshTokensRepository.GetValidTokenByToken(HashToken(token));
 
             if (refreshTokens == null)
                 return ServiceResponse<RefreshTokens?>.Fail(default, 404, "Refresh Token doesn't exist.");

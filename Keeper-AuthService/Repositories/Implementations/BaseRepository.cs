@@ -36,7 +36,7 @@ namespace Keeper_AuthService.Repositories.Implementations
 
         public async Task<T> UpdateAsync(T entity)
         {
-            T oldObj = await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == obj.Id);
+            T oldObj = await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == entity.Id);
 
             if (oldObj == null)
                 return null;

@@ -10,9 +10,9 @@ namespace Keeper_AuthService.Repositories.Implementations
         public RefreshTokensRepository(AppDbContext context) : base(context) { }
 
 
-        public async Task<RefreshTokens?> GetByUserIdAsync(Guid Id)
+        public async Task<ICollection<RefreshTokens>> GetByUserIdAsync(Guid Id)
         {
-            return await _appDbContext.RefreshTokens.FirstOrDefaultAsync(t => t.UserId == Id);
+            return await _appDbContext.RefreshTokens.Where(t => t.UserId == Id).ToListAsync();
         }
 
 
@@ -22,9 +22,16 @@ namespace Keeper_AuthService.Repositories.Implementations
         }
 
 
-        public async Task<RefreshTokens?> GetValidToken(string token)
+        public async Task<RefreshTokens?> GetValidTokenByToken(string token)
         {
             return await _appDbContext.RefreshTokens.FirstOrDefaultAsync(t => t.Token == token &&
+                t.ExpiresAt > DateTime.UtcNow && !t.Revoked);
+        }
+
+
+        public async Task<RefreshTokens?> GetValidTokenByUserId(Guid Id)
+        {
+            return await _appDbContext.RefreshTokens.FirstOrDefaultAsync(t => t.UserId == Id && 
                 t.ExpiresAt > DateTime.UtcNow && !t.Revoked);
         }
     }
