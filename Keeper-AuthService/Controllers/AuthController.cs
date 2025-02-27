@@ -19,6 +19,9 @@ namespace Keeper_AuthService.Controllers
         [HttpPost("registration")]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO newUser)
         {
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
+
             try
             {
                 ServiceResponse<UsersDTO?> response = await _authService.Registration(newUser);
@@ -26,7 +29,7 @@ namespace Keeper_AuthService.Controllers
                 if (!response.IsSuccess)
                     return StatusCode(statusCode: response.Status, new { message = response.Message });
 
-                return Created();
+                return StatusCode(statusCode: response.Status, new { message = response.Message });
             }
             catch (Exception ex)
             {
@@ -38,6 +41,9 @@ namespace Keeper_AuthService.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO login)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
                 ServiceResponse<TokensDTO?> response = await _authService.Login(login);
@@ -57,6 +63,9 @@ namespace Keeper_AuthService.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout([FromBody] LogoutDTO logout)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
                 ServiceResponse<UsersDTO?> response = await _authService.Logout(logout);
@@ -76,6 +85,9 @@ namespace Keeper_AuthService.Controllers
         [HttpPost("activation")]
         public async Task<IActionResult> Activation([FromBody] UserActivationDTO activation)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
                 ServiceResponse<UsersDTO?> response = await _authService.UserActivation(activation);
@@ -95,6 +107,9 @@ namespace Keeper_AuthService.Controllers
         [HttpPost("jwt/update")]
         public async Task<IActionResult> UpdateJwt([FromBody] UpdateJwtDTO updateJwt)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
                 ServiceResponse<string?> response = await _authService.UpdateJwt(updateJwt);
