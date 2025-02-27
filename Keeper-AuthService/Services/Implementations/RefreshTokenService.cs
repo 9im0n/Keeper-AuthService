@@ -50,15 +50,15 @@ namespace Keeper_AuthService.Services.Implementations
 
         public async Task<ServiceResponse<RefreshTokens?>> RevokeTokenAsync(Guid userId)
         {
-            ICollection<RefreshTokens> refreshToken = await _refreshTokensRepository.GetByUserIdAsync(userId);
-            
-            foreach (RefreshTokens refreshTokenItem in refreshToken)
-            {
-                refreshTokenItem.Revoked = true;
-                await _refreshTokensRepository.UpdateAsync(refreshTokenItem);
-            }
+            RefreshTokens? refreshToken = await _refreshTokensRepository.GetValidTokenByUserId(userId);
 
-            return ServiceResponse<RefreshTokens?>.Success(default);
+            if (refreshToken == null)
+                return ServiceResponse<RefreshTokens?>.Fail(default, 400, message: "User hasn't logined.");
+
+            refreshToken.Revoked = true;
+            refreshToken = await _refreshTokensRepository.UpdateAsync(refreshToken);
+
+            return ServiceResponse<RefreshTokens?>.Success(refreshToken, message: "Refresh tokens have revoked.");
         }
 
 

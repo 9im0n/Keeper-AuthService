@@ -54,6 +54,25 @@ namespace Keeper_AuthService.Controllers
         }
 
 
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] LogoutDTO logout)
+        {
+            try
+            {
+                ServiceResponse<UsersDTO?> response = await _authService.Logout(logout);
+
+                if (!response.IsSuccess)
+                    return StatusCode(statusCode: response.Status, new { message = response.Message });
+
+                return Ok(new { data = response.Data, message = response.Message });
+            }
+            catch (Exception ex)
+            {
+                return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}; {ex.TargetSite}; {ex.StackTrace}");
+            }
+        }
+
+
         [HttpPost("activation")]
         public async Task<IActionResult> Activation([FromBody] UserActivationDTO activation)
         {
