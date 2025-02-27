@@ -10,7 +10,7 @@ namespace Keeper_AuthService.Repositories.Implementations
         public RefreshTokensRepository(AppDbContext context) : base(context) { }
 
 
-        public async Task<ICollection<RefreshTokens>> GetByUserIdAsync(Guid Id)
+        public async Task<List<RefreshTokens>> GetByUserIdAsync(Guid Id)
         {
             return await _appDbContext.RefreshTokens.Where(t => t.UserId == Id).ToListAsync();
         }

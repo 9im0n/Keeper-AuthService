@@ -56,6 +56,22 @@ namespace Keeper_AuthService.Services.Implementations
         }
 
 
+        public async Task<ServiceResponse<UsersDTO?>> Logout(LogoutDTO logout)
+        {
+            ServiceResponse<UsersDTO?> user = await _userService.GetByEmailAsync(logout.Email);
+
+            if (!user.IsSuccess)
+                return ServiceResponse<UsersDTO?>.Fail(default, user.Status, user.Message);
+
+            ServiceResponse<RefreshTokens?> token = await _refreshTokenService.RevokeTokenAsync(user.Data.Id);
+
+            if (!token.IsSuccess)
+                return ServiceResponse<UsersDTO?>.Fail(default, token.Status, token.Message);
+
+            return ServiceResponse<UsersDTO?>.Success(default, message: "User logout.");
+        }
+
+
         public async Task<ServiceResponse<UsersDTO?>> UserActivation(UserActivationDTO activation)
         {
             return await _userService.ActivateUser(activation);
