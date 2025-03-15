@@ -21,7 +21,11 @@ namespace Keeper_AuthService.Services.Implementations
 
         public async Task<ServiceResponse<string?>> GenerateTokenAsync(UsersDTO user)
         {
-            List<Claim> claims = new List<Claim>() { new Claim("UserID", user.Id.ToString()) };
+            List<Claim> claims = new List<Claim>()
+            {
+                new Claim("UserID", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.Name)
+            };
 
             JwtSecurityToken jwt = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,

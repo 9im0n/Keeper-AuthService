@@ -38,7 +38,7 @@ namespace Keeper_AuthService.Services.Implementations
                 return ServiceResponse<TokensDTO?>.Fail(default, userResponse.Status, userResponse.Message);
 
             if (!userResponse.Data.IsActive)
-                return ServiceResponse<TokensDTO?>.Fail(default, 400, "User isn't activated.");
+                return ServiceResponse<TokensDTO?>.Fail(default, 400, "User didn't activated.");
 
             if (userResponse.Data?.Password != login.Password)
                 return ServiceResponse<TokensDTO?>.Fail(default, 400, "Passwords doesn't match.");
