@@ -21,6 +21,8 @@ namespace Keeper_AuthService.Models.DTO
         public required Guid RoleId { get; set; }
         public virtual RolesDTO Role { get; set; }
 
+        public ProfileDTO Profile { get; set; }
+
         public virtual ICollection<PermissionsDTO> Permissions { get; set; }
     }
 }

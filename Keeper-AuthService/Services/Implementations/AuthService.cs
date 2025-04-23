@@ -2,6 +2,7 @@
 using Keeper_AuthService.Models.DTO;
 using Keeper_AuthService.Services.Interfaces;
 using Keeper_AuthService.Models.DB;
+using BCrypt.Net;
 
 
 namespace Keeper_AuthService.Services.Implementations
@@ -40,7 +41,7 @@ namespace Keeper_AuthService.Services.Implementations
             if (!userResponse.Data.IsActive)
                 return ServiceResponse<TokensDTO?>.Fail(default, 400, "User didn't activated.");
 
-            if (userResponse.Data?.Password != login.Password)
+            if (!BCrypt.Net.BCrypt.Verify(login.Password, userResponse.Data?.Password))
                 return ServiceResponse<TokensDTO?>.Fail(default, 400, "Passwords doesn't match.");
 
             ServiceResponse<string?> jwtToken = await _jwtService.GenerateTokenAsync(userResponse.Data);
