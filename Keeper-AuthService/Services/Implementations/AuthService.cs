@@ -31,29 +31,34 @@ namespace Keeper_AuthService.Services.Implementations
         }
 
 
-        public async Task<ServiceResponse<TokensDTO?>> Login(LoginDTO login)
+        public async Task<ServiceResponse<UserInfoDTO?>> Login(LoginDTO login)
         {
             ServiceResponse<UsersDTO?> userResponse = await _userService.GetByEmailAsync(login.Email);
 
             if (!userResponse.IsSuccess)
-                return ServiceResponse<TokensDTO?>.Fail(default, userResponse.Status, userResponse.Message);
+                return ServiceResponse<UserInfoDTO?>.Fail(default, userResponse.Status, userResponse.Message);
 
             if (!userResponse.Data.IsActive)
-                return ServiceResponse<TokensDTO?>.Fail(default, 400, "User didn't activated.");
+                return ServiceResponse<UserInfoDTO?>.Fail(default, 400, "User didn't activated.");
 
             if (!BCrypt.Net.BCrypt.Verify(login.Password, userResponse.Data?.Password))
-                return ServiceResponse<TokensDTO?>.Fail(default, 400, "Passwords doesn't match.");
+                return ServiceResponse<UserInfoDTO?>.Fail(default, 400, "Passwords doesn't match.");
 
             ServiceResponse<string?> jwtToken = await _jwtService.GenerateTokenAsync(userResponse.Data);
             ServiceResponse<string> refreshToken = await _refreshTokenService.CreateAsync(userResponse.Data.Id);
 
-            TokensDTO response = new TokensDTO()
+            UserInfoDTO userInfoDTO = new UserInfoDTO
             {
-                AccessToken = jwtToken.Data,
-                RefreshToken = refreshToken.Data
+                UserId = userResponse.Data.Id,
+                Profile = userResponse.Data.Profile,
+                Tokens = new TokensDTO
+                {
+                    AccessToken = jwtToken.Data,
+                    RefreshToken = refreshToken.Data
+                }
             };
 
-            return ServiceResponse<TokensDTO?>.Success(response);
+            return ServiceResponse<UserInfoDTO?>.Success(userInfoDTO);
         }
 
 
