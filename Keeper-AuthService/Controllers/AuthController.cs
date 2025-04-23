@@ -46,7 +46,7 @@ namespace Keeper_AuthService.Controllers
 
             try
             {
-                ServiceResponse<TokensDTO?> response = await _authService.Login(login);
+                ServiceResponse<UserInfoDTO?> response = await _authService.Login(login);
 
                 if (!response.IsSuccess)
                     return StatusCode(statusCode: response.Status, new { message = response.Message });
