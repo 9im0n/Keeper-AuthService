@@ -31,34 +31,39 @@ namespace Keeper_AuthService.Services.Implementations
         }
 
 
-        public async Task<ServiceResponse<UserInfoDTO?>> Login(LoginDTO login)
+        public async Task<ServiceResponse<SessionDTO?>> Login(LoginDTO login)
         {
             ServiceResponse<UsersDTO?> userResponse = await _userService.GetByEmailAsync(login.Email);
 
             if (!userResponse.IsSuccess)
-                return ServiceResponse<UserInfoDTO?>.Fail(default, userResponse.Status, userResponse.Message);
+                return ServiceResponse<SessionDTO?>.Fail(default, userResponse.Status, userResponse.Message);
 
-            if (!userResponse.Data.IsActive)
-                return ServiceResponse<UserInfoDTO?>.Fail(default, 400, "User didn't activated.");
+            Console.WriteLine($"\n\n\n\n\n {userResponse.Data.Password}");
 
-            if (!BCrypt.Net.BCrypt.Verify(login.Password, userResponse.Data?.Password))
-                return ServiceResponse<UserInfoDTO?>.Fail(default, 400, "Passwords doesn't match.");
+            UsersDTO user = userResponse.Data;
 
-            ServiceResponse<string?> jwtToken = await _jwtService.GenerateTokenAsync(userResponse.Data);
-            ServiceResponse<string> refreshToken = await _refreshTokenService.CreateAsync(userResponse.Data.Id);
+            Console.WriteLine($"\n\n\n\n\n {user.Password}");
 
-            UserInfoDTO userInfoDTO = new UserInfoDTO
+            if (!user.IsActive)
+                return ServiceResponse<SessionDTO?>.Fail(default, 400, "User didn't activated.");
+
+            if (!BCrypt.Net.BCrypt.Verify(login.Password, user.Password))
+                return ServiceResponse<SessionDTO?>.Fail(default, 400, "Passwords doesn't match.");
+
+            ServiceResponse<string?> jwtToken = await _jwtService.GenerateTokenAsync(user);
+            ServiceResponse<string> refreshToken = await _refreshTokenService.CreateAsync(user.Id);
+
+            SessionDTO session = new SessionDTO()
             {
-                UserId = userResponse.Data.Id,
-                Profile = userResponse.Data.Profile,
-                Tokens = new TokensDTO
-                {
-                    AccessToken = jwtToken.Data,
-                    RefreshToken = refreshToken.Data
-                }
+                Id = user.Id,
+                Email = user?.Email,
+                Role = user.Role.Name,
+                Profile = user.Profile,
+                AccessToken = jwtToken.Data,
+                RefreshToken = refreshToken.Data
             };
 
-            return ServiceResponse<UserInfoDTO?>.Success(userInfoDTO);
+            return ServiceResponse<SessionDTO?>.Success(session);
         }
 
 

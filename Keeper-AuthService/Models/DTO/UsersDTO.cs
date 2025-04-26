@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Text.Json.Serialization;
 
 namespace Keeper_AuthService.Models.DTO
 {
@@ -10,11 +11,11 @@ namespace Keeper_AuthService.Models.DTO
 
         [Required]
         [EmailAddress]
-        public required string Email { get; set; }
+        public string Email { get; set; }
 
         [Required]
         [MinLength(8)]
-        public required string Password { get; set; }
+        public string Password { get; set; }
 
         public bool IsActive { get; set; } = false;
 

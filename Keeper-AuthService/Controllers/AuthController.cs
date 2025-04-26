@@ -29,7 +29,7 @@ namespace Keeper_AuthService.Controllers
                 if (!response.IsSuccess)
                     return StatusCode(statusCode: response.Status, new { message = response.Message });
 
-                return StatusCode(statusCode: response.Status, new { message = response.Message });
+                return StatusCode(statusCode: response.Status, new { data = response.Data, message = response.Message });
             }
             catch (Exception ex)
             {
@@ -46,7 +46,7 @@ namespace Keeper_AuthService.Controllers
 
             try
             {
-                ServiceResponse<UserInfoDTO?> response = await _authService.Login(login);
+                ServiceResponse<SessionDTO?> response = await _authService.Login(login);
 
                 if (!response.IsSuccess)
                     return StatusCode(statusCode: response.Status, new { message = response.Message });
@@ -55,7 +55,7 @@ namespace Keeper_AuthService.Controllers
             }
             catch (Exception ex)
             {
-                return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}");
+                return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}. {ex.StackTrace}");
             }
         }
 
