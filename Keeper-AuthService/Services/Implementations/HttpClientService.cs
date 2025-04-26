@@ -80,6 +80,9 @@ namespace Keeper_AuthService.Services.Implementations
                 using JsonDocument doc = JsonDocument.Parse(rawJson);
                 JsonElement root = doc.RootElement;
 
+                if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                    return ServiceResponse<T?>.Fail(default, 500, root.GetProperty("Detail").GetString());
+
                 if (!root.TryGetProperty("message", out JsonElement message))
                     return ServiceResponse<T?>.Fail(default, 400, "response doesn't have a message field.");
 
