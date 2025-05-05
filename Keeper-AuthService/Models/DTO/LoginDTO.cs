@@ -6,10 +6,10 @@ namespace Keeper_AuthService.Models.DTO
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
 
         [Required]
-        public string Password { get; set; }
+        public string Password { get; set; } = null!;
     }
 }

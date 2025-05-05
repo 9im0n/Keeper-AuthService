@@ -8,7 +8,7 @@ namespace Keeper_AuthService.Models.DB
         public Guid UserId { get; set; }
 
         [Required]
-        public string Token { get; set; }
+        public string Token { get; set; } = null!;
 
         [Required]
         public DateTime ExpiresAt { get; set; }

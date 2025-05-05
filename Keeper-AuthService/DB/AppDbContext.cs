@@ -8,6 +8,7 @@ namespace Keeper_AuthService.DB
     {
         // Tables
         public DbSet<RefreshTokens> RefreshTokens { get; set; }
+        public DbSet<PendingActivation> PendingActivations { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     }

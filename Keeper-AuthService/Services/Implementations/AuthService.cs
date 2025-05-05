@@ -12,96 +12,63 @@ namespace Keeper_AuthService.Services.Implementations
         private readonly IUserService _userService;
         private readonly IJwtService _jwtService;
         private readonly IRefreshTokenService _refreshTokenService;
+        private readonly IPendingActivationService _pendingActivationService;
+        private readonly IDTOMapper _mapper;
 
-        public AuthService(IUserService userService, IJwtService jwtService, IRefreshTokenService refreshTokenService)
+        public AuthService(IUserService userService, 
+            IJwtService jwtService, 
+            IRefreshTokenService refreshTokenService,
+            IPendingActivationService pendingActivationService,
+            IDTOMapper mapper)
         {
             _userService = userService;
             _jwtService = jwtService;
             _refreshTokenService = refreshTokenService;
+            _pendingActivationService = pendingActivationService;
+            _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<UsersDTO?>> Registration(CreateUserDTO newUser)
+        public async Task<ServiceResponse<object?>> Register(RegisterDTO registerDTO)
         {
-            ServiceResponse<UsersDTO?> createUserResponse = await _userService.CreateAsync(newUser);
+            if (registerDTO.Password != registerDTO.ConfirmPassword)
+                return ServiceResponse<object?>.Fail(default, 400, "Passwords don't match.");
 
-            if (!createUserResponse.IsSuccess)
-                return ServiceResponse<UsersDTO?>.Fail(null, createUserResponse.Status, createUserResponse.Message);
+            ServiceResponse<PendingActivationDTO?> pendingActivationServiceResponse = await _pendingActivationService
+                .GetByEmailAsync(registerDTO.Email);
 
-            return ServiceResponse<UsersDTO?>.Success(createUserResponse.Data, 201, createUserResponse.Message);
+            if (pendingActivationServiceResponse.IsSuccess)
+                return ServiceResponse<object>.Fail(default, 422, "User was registered, but didn't activate.");
+
+            ServiceResponse<UserDTO?> userServiceResponse = await _userService.GetByEmailAsync(registerDTO.Email);
+
+            if (userServiceResponse.IsSuccess)
+                return ServiceResponse<object?>.Fail(default, 409, "User had registered.");
+
+
         }
 
 
         public async Task<ServiceResponse<SessionDTO?>> Login(LoginDTO login)
         {
-            ServiceResponse<UsersDTO?> userResponse = await _userService.GetByEmailAsync(login.Email);
-
-            if (!userResponse.IsSuccess)
-                return ServiceResponse<SessionDTO?>.Fail(default, userResponse.Status, userResponse.Message);
-
-            Console.WriteLine($"\n\n\n\n\n {userResponse.Data.Password}");
-
-            UsersDTO user = userResponse.Data;
-
-            Console.WriteLine($"\n\n\n\n\n {user.Password}");
-
-            if (!user.IsActive)
-                return ServiceResponse<SessionDTO?>.Fail(default, 400, "User didn't activated.");
-
-            if (!BCrypt.Net.BCrypt.Verify(login.Password, user.Password))
-                return ServiceResponse<SessionDTO?>.Fail(default, 400, "Passwords doesn't match.");
-
-            ServiceResponse<string?> jwtToken = await _jwtService.GenerateTokenAsync(user);
-            ServiceResponse<string> refreshToken = await _refreshTokenService.CreateAsync(user.Id);
-
-            SessionDTO session = new SessionDTO()
-            {
-                Id = user.Id,
-                Email = user?.Email,
-                Role = user.Role.Name,
-                Profile = user.Profile,
-                AccessToken = jwtToken.Data,
-                RefreshToken = refreshToken.Data
-            };
-
-            return ServiceResponse<SessionDTO?>.Success(session);
+            throw new NotImplementedException();
         }
 
 
-        public async Task<ServiceResponse<UsersDTO?>> Logout(LogoutDTO logout)
+        public async Task<ServiceResponse<object?>> Logout(LogoutDTO logout)
         {
-            ServiceResponse<UsersDTO?> user = await _userService.GetByEmailAsync(logout.Email);
-
-            if (!user.IsSuccess)
-                return ServiceResponse<UsersDTO?>.Fail(default, user.Status, user.Message);
-
-            ServiceResponse<RefreshTokens?> token = await _refreshTokenService.RevokeTokenAsync(user.Data.Id);
-
-            if (!token.IsSuccess)
-                return ServiceResponse<UsersDTO?>.Fail(default, token.Status, token.Message);
-
-            return ServiceResponse<UsersDTO?>.Success(default, message: "User logout.");
+            throw new NotImplementedException();
         }
 
 
-        public async Task<ServiceResponse<UsersDTO?>> UserActivation(UserActivationDTO activation)
+        public async Task<ServiceResponse<object?>> Activation(ActivationDTO activation)
         {
-            return await _userService.ActivateUser(activation);
+            throw new NotImplementedException();
         }
 
 
         public async Task<ServiceResponse<string?>> UpdateJwt(UpdateJwtDTO updateJwt)
         {
-            ServiceResponse<RefreshTokens?> rtResponse = await _refreshTokenService.ValidateTokenAsync(updateJwt.RefreshToken);
-
-            if (!rtResponse.IsSuccess)
-                return ServiceResponse<string?>.Fail(default, rtResponse.Status, rtResponse.Message);
-
-            ServiceResponse<UsersDTO?> user = await _userService.GetByEmailAsync(updateJwt.Email);
-
-            if (!user.IsSuccess)
-                return ServiceResponse<string?>.Fail(default, user.Status, user.Message);
-
-            return await _jwtService.GenerateTokenAsync(user.Data);
+            throw new NotImplementedException();
         }
     }
 }

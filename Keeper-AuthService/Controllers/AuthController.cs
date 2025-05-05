@@ -2,11 +2,13 @@
 using Keeper_AuthService.Models.DTO;
 using Keeper_AuthService.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Keeper_AuthService.Controllers
 {
+    [ApiController]
     [Route("auth")]
-    public class AuthController : Controller
+    public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
 
@@ -16,113 +18,46 @@ namespace Keeper_AuthService.Controllers
         }
 
 
-        [HttpPost("registration")]
-        public async Task<IActionResult> Register([FromBody] CreateUserDTO newUser)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDTO newUser)
         {
-            if (!ModelState.IsValid) 
-                return BadRequest(ModelState);
-
-            try
-            {
-                ServiceResponse<UsersDTO?> response = await _authService.Registration(newUser);
-                
-                if (!response.IsSuccess)
-                    return StatusCode(statusCode: response.Status, new { message = response.Message });
-
-                return StatusCode(statusCode: response.Status, new { data = response.Data, message = response.Message });
-            }
-            catch (Exception ex)
-            {
-                return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}");
-            }
+            
         }
 
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO login)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                ServiceResponse<SessionDTO?> response = await _authService.Login(login);
-
-                if (!response.IsSuccess)
-                    return StatusCode(statusCode: response.Status, new { message = response.Message });
-
-                return Ok(new { data = response.Data, message = response.Message });
-            }
-            catch (Exception ex)
-            {
-                return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}. {ex.StackTrace}");
-            }
+            
         }
 
 
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromBody] LogoutDTO logout)
+        [HttpPost("logout/{id:guid}")]
+        public async Task<IActionResult> Logout(Guid id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                ServiceResponse<UsersDTO?> response = await _authService.Logout(logout);
-
-                if (!response.IsSuccess)
-                    return StatusCode(statusCode: response.Status, new { message = response.Message });
-
-                return Ok(new { data = response.Data, message = response.Message });
-            }
-            catch (Exception ex)
-            {
-                return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}; {ex.TargetSite}; {ex.StackTrace}");
-            }
+            
         }
 
 
-        [HttpPost("activation")]
-        public async Task<IActionResult> Activation([FromBody] UserActivationDTO activation)
+        [HttpPost("activate")]
+        public async Task<IActionResult> Activation([FromBody] ActivationDTO activation)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                ServiceResponse<UsersDTO?> response = await _authService.UserActivation(activation);
-
-                if (!response.IsSuccess)
-                    return StatusCode(statusCode: response.Status, new { message = response.Message });
-
-                return StatusCode(statusCode: response.Status, new { message = response.Message });
-            }
-            catch (Exception ex)
-            {
-                return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}");
-            }
+            
         }
 
 
         [HttpPost("jwt/update")]
         public async Task<IActionResult> UpdateJwt([FromBody] UpdateJwtDTO updateJwt)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            
+        }
 
-            try
-            {
-                ServiceResponse<string?> response = await _authService.UpdateJwt(updateJwt);
+        private IActionResult HandleServiceResponse<T>(ServiceResponse<T> response)
+        {
+            if (!response.IsSuccess)
+                return StatusCode(statusCode: response.Status, new { message = response.Message });
 
-                if (!response.IsSuccess)
-                    return StatusCode(statusCode: response.Status, new { message = response.Message });
-
-                return Ok(new { data = response.Data, message = response.Message });
-            }
-            catch (Exception ex)
-            {
-                return Problem(statusCode: 500, detail: $"Auth Servcie: {ex.Message}");
-            }
+            return StatusCode(statusCode: response.Status, new { message = response.Message });
         }
     }
 }

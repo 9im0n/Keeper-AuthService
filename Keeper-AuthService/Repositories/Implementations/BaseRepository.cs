@@ -14,43 +14,47 @@ namespace Keeper_AuthService.Repositories.Implementations
             _appDbContext = appDbContext;
         }
 
-        public async Task<ICollection<T>> GetAllAsync()
+        public virtual async Task<List<T>> GetAllAsync()
         {
             return await _appDbContext.Set<T>().ToListAsync();
         }
 
 
-        public async Task<T> GetByIdAsync(Guid id)
+        public virtual async Task<T?> GetByIdAsync(Guid id)
         {
             return await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == id);
         }
 
 
-        public async Task<T> CreateAsync(T entity)
+        public async Task<T> CreateAsync(T obj)
         {
-            await _appDbContext.Set<T>().AddAsync(entity);
+            await _appDbContext.Set<T>().AddAsync(obj);
             await _appDbContext.SaveChangesAsync();
-            return entity;
+            return obj;
         }
 
 
-        public async Task<T> UpdateAsync(T entity)
+        public async Task<T?> UpdateAsync(T obj)
         {
-            T oldObj = await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == entity.Id);
+            T? oldObj = await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == obj.Id);
 
             if (oldObj == null)
                 return null;
 
-            _appDbContext.Entry(oldObj).CurrentValues.SetValues(entity);
+            _appDbContext.Entry(oldObj).CurrentValues.SetValues(obj);
             await _appDbContext.SaveChangesAsync();
 
             return oldObj;
         }
 
 
-        public async Task<T> DeleteAsync(Guid id)
+        public async Task<T?> DeleteAsync(Guid id)
         {
-            T obj = await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == id);
+            T? obj = await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == id);
+
+            if (obj == null)
+                return null;
+
             _appDbContext.Remove(obj);
 
             await _appDbContext.SaveChangesAsync();

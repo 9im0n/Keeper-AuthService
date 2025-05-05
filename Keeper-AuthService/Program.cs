@@ -6,6 +6,7 @@ using Keeper_AuthService.DB;
 using Microsoft.EntityFrameworkCore;
 using Keeper_AuthService.Repositories.Interfaces;
 using Keeper_AuthService.Repositories.Implementations;
+using Keeper_AuthService.Middlewares;
 
 
 namespace Keeper_AuthService
@@ -43,6 +44,8 @@ namespace Keeper_AuthService
             builder.Services.AddSwaggerGen();            
 
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

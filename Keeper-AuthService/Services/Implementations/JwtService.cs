@@ -19,7 +19,7 @@ namespace Keeper_AuthService.Services.Implementations
             _jwtSettings = jwtSettings.Value;
         }
 
-        public async Task<ServiceResponse<string?>> GenerateTokenAsync(UsersDTO user)
+        public async Task<ServiceResponse<string?>> GenerateTokenAsync(UserDTO user)
         {
             List<Claim> claims = new List<Claim>()
             {
