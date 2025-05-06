@@ -8,6 +8,6 @@ namespace Keeper_AuthService.Services.Interfaces
     {
         public Task<ServiceResponse<PendingActivationDTO?>> GetByEmailAsync(string email);
         public Task<ServiceResponse<PendingActivationDTO?>> CreateAsync(CreatePendingActivationDTO createDTO);
-        public ServiceResponse<string> Generate();
+        public Task<ServiceResponse<PendingActivationDTO?>> DeleteAsync(Guid id);
     }
 }

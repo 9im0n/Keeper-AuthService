@@ -10,6 +10,7 @@ namespace Keeper_AuthService.Models.DTO
 
 
         [Required]
+        [Length(6, 6)]
         public string ActivationPassword { get; set; } = null!;
     }
 }

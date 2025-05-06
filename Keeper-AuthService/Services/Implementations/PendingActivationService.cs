@@ -18,14 +18,17 @@ namespace Keeper_AuthService.Services.Implementations
             _mapper = mapper;
         }
 
-        public Task<ServiceResponse<PendingActivation?>> CreateAsync(CreatePendingActivationDTO createDTO)
+        public async Task<ServiceResponse<PendingActivationDTO?>> CreateAsync(CreatePendingActivationDTO createDTO)
         {
+            PendingActivation pendingActivation = await _repository.CreateAsync(new PendingActivation
+            {
+                Email = createDTO.Email,
+                PasswordHash = createDTO.PasswordHash,
+                ActivationCodeHash = createDTO.ActivationCodeHash
+            });
 
-        }
-
-        public ServiceResponse<string> Generate()
-        {
-            
+            PendingActivationDTO pendingActivationDTO = _mapper.Map(pendingActivation);
+            return ServiceResponse<PendingActivationDTO?>.Success(pendingActivationDTO);
         }
 
         public async Task<ServiceResponse<PendingActivationDTO?>> GetByEmailAsync(string email)
@@ -36,6 +39,20 @@ namespace Keeper_AuthService.Services.Implementations
                 return ServiceResponse<PendingActivationDTO?>.Fail(default, 404, "Registered user don't exist.");
 
             PendingActivationDTO pendingActivationDTO = _mapper.Map(pendingActivation);
+            return ServiceResponse<PendingActivationDTO?>.Success(pendingActivationDTO);
+        }
+
+        public async Task<ServiceResponse<PendingActivationDTO?>> DeleteAsync(Guid id)
+        {
+            PendingActivation? pendingActivation = await _repository.GetByIdAsync(id);
+
+            if (pendingActivation == null)
+                return ServiceResponse<PendingActivationDTO?>.Fail(default, 404, "Pending activation doesn't exist.");
+        
+            pendingActivation = await _repository.DeleteAsync(id);
+
+            PendingActivationDTO pendingActivationDTO= _mapper.Map(pendingActivation);
+
             return ServiceResponse<PendingActivationDTO?>.Success(pendingActivationDTO);
         }
     }

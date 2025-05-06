@@ -1,6 +1,8 @@
 ﻿using Keeper_AuthService.Models.DTO;
 using Keeper_AuthService.Models.Services;
 using Keeper_AuthService.Services.Interfaces;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Keeper_AuthService.Services.Implementations
 {
@@ -8,13 +10,22 @@ namespace Keeper_AuthService.Services.Implementations
     {
         public ServiceResponse<ActivationPasswordDTO> Generate()
         {
-            throw new NotImplementedException();
-        }
+            const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            StringBuilder stringBuilder = new StringBuilder();
+            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+            {
+                byte[] data = new byte[1];
+                for (int i = 0; i < 6; i++)
+                {
+                    rng.GetBytes(data);
+                    int index = data[0] % chars.Length;
+                    stringBuilder.Append(chars[index]);
+                }
+            }
 
-        public ServiceResponse<object?> SendByEmail(string email,
-            ActivationPasswordDTO activationPasswordDTO)
-        {
-            throw new NotImplementedException();
+            string password = stringBuilder.ToString();
+            ActivationPasswordDTO dto = new ActivationPasswordDTO { Password = password };
+            return ServiceResponse<ActivationPasswordDTO>.Success(dto);
         }
     }
 }

@@ -5,6 +5,6 @@ namespace Keeper_AuthService.Services.Interfaces
 {
     public interface IJwtService
     {
-        public Task<ServiceResponse<string?>> GenerateTokenAsync(UserDTO user);
+        public ServiceResponse<string> GenerateToken(UserDTO user);
     }
 }

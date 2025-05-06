@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Keeper_AuthService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250222073045_Initial")]
+    [Migration("20250506170018_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,7 +25,36 @@ namespace Keeper_AuthService.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Keeper_AuthService.Models.DB.RefreshTokens", b =>
+            modelBuilder.Entity("Keeper_AuthService.Models.DB.PendingActivation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActivationCodeHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PendingActivations");
+                });
+
+            modelBuilder.Entity("Keeper_AuthService.Models.DB.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

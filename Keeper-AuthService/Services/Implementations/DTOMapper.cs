@@ -10,11 +10,25 @@ namespace Keeper_AuthService.Services.Implementations
         {
             return new PendingActivationDTO()
             {
+                Id = pendingActivation.Id,
                 Email = pendingActivation.Email,
                 PasswordHash = pendingActivation.PasswordHash,
                 ActivationCodeHash = pendingActivation.ActivationCodeHash,
                 CreatedAt = pendingActivation.CreatedAt,
                 ExpiresAt = pendingActivation.ExpiresAt
+            };
+        }
+
+        public RefreshTokenDTO Map(RefreshToken refreshToken)
+        {
+            return new RefreshTokenDTO()
+            {
+                Id = refreshToken.Id,
+                UserId = refreshToken.UserId,
+                Token = refreshToken.Token,
+                CreatedAt = refreshToken.CreatedAt,
+                ExpiresAt = refreshToken.ExpiresAt,
+                Revoked = refreshToken.Revoked
             };
         }
     }

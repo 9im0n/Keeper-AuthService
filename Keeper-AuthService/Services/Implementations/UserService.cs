@@ -17,11 +17,16 @@ namespace Keeper_AuthService.Services.Implementations
         }
 
         
-        public async Task<ServiceResponse<UserDTO?>> CreateAsync(RegisterDTO newUser)
+        public async Task<ServiceResponse<UserDTO?>> CreateAsync(CreateUserDTO createUserDTO)
         {
-            return await _httpClientService.PostAsync<RegisterDTO, UserDTO?>($"{_api}/users/registration", newUser);
+            return await _httpClientService.PostAsync<CreateUserDTO, UserDTO?>($"{_api}/users", createUserDTO);
         }
 
+
+        public async Task<ServiceResponse<UserDTO?>> GetByIdAsync(Guid Id)
+        {
+            return await _httpClientService.GetAsync<UserDTO?>($"{_api}/users/{Id}");
+        }
 
         public async Task<ServiceResponse<UserDTO?>> ActivateUser(ActivationDTO activation)
         {
@@ -31,7 +36,12 @@ namespace Keeper_AuthService.Services.Implementations
 
         public async Task<ServiceResponse<UserDTO?>> GetByEmailAsync(string email)
         {
-            return await _httpClientService.GetAsync<UserDTO?>($"{_api}/users/{email}");
+            return await _httpClientService.GetAsync<UserDTO?>($"{_api}/users/by-email/{email}");
+        }
+
+        public async Task<ServiceResponse<FullUserDTO?>> GetFullUserByEmailAsync(string email)
+        {
+            return await _httpClientService.GetAsync<FullUserDTO?>($"{_api}/users/by-email/{email}/full");
         }
     }
 }

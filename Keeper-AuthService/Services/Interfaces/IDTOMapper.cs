@@ -6,5 +6,6 @@ namespace Keeper_AuthService.Services.Interfaces
     public interface IDTOMapper
     {
         public PendingActivationDTO Map(PendingActivation pendingActivation);
+        public RefreshTokenDTO Map(RefreshToken refreshToken);
     }
 }
