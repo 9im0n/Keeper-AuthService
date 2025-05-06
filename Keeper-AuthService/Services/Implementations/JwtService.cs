@@ -19,11 +19,11 @@ namespace Keeper_AuthService.Services.Implementations
             _jwtSettings = jwtSettings.Value;
         }
 
-        public async Task<ServiceResponse<string?>> GenerateTokenAsync(UsersDTO user)
+        public ServiceResponse<string> GenerateToken(UserDTO user)
         {
             List<Claim> claims = new List<Claim>()
             {
-                new Claim("UserID", user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
@@ -36,7 +36,7 @@ namespace Keeper_AuthService.Services.Implementations
                 );
 
             string jwtToken =  new JwtSecurityTokenHandler().WriteToken(jwt);
-            return ServiceResponse<string?>.Success(jwtToken);
+            return ServiceResponse<string>.Success(jwtToken);
         }
     }
 }

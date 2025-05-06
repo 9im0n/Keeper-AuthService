@@ -1,4 +1,5 @@
 ﻿using Keeper_AuthService.Models.DB;
+using Keeper_AuthService.Models.DTO;
 using Keeper_AuthService.Models.Services;
 using Keeper_AuthService.Models.Settings;
 using Keeper_AuthService.Repositories.Interfaces;
@@ -8,34 +9,31 @@ using System.Security.Cryptography;
 using System.Text;
 
 
-
 namespace Keeper_AuthService.Services.Implementations
 {
     public class RefreshTokenService : IRefreshTokenService
     {
         private readonly IRefreshTokensRepository _refreshTokensRepository;
         private readonly JwtSettings _jwtSettings;
+        private readonly IDTOMapper _mapper;
 
-        public RefreshTokenService(IRefreshTokensRepository refreshTokensRepository, IOptions<JwtSettings> jwtSettings)
+        public RefreshTokenService(IRefreshTokensRepository refreshTokensRepository, 
+            IOptions<JwtSettings> jwtSettings,
+            IDTOMapper mapper)
         {
             _refreshTokensRepository = refreshTokensRepository;
             _jwtSettings = jwtSettings.Value;
+            _mapper = mapper;
         }
 
 
         public async Task<ServiceResponse<string>> CreateAsync(Guid userId)
         {
-            RefreshTokens? oldToken = await _refreshTokensRepository.GetValidTokenByUserId(userId);
-
-            if (oldToken != null)
-            {
-                oldToken.Revoked = true;
-                await _refreshTokensRepository.UpdateAsync(oldToken);
-            }
+            await RevokeTokensAsync(userId);
 
             string token = GenerateToken();
 
-            RefreshTokens refreshToken = new RefreshTokens()
+            RefreshToken refreshToken = new RefreshToken()
             {
                 UserId = userId,
                 Token = HashToken(token),
@@ -48,42 +46,39 @@ namespace Keeper_AuthService.Services.Implementations
         }
 
 
-        public async Task<ServiceResponse<RefreshTokens?>> RevokeTokenAsync(Guid userId)
+        public async Task<ServiceResponse<object?>> RevokeTokensAsync(Guid userId)
         {
-            RefreshTokens? refreshToken = await _refreshTokensRepository.GetValidTokenByUserId(userId);
+            await _refreshTokensRepository.RevokeValidTokensAsync(userId);
+            return ServiceResponse<object?>.Success(default);
+        }
+
+
+        public async Task<ServiceResponse<RefreshTokenDTO?>> ValidateTokenAsync(string token)
+        {
+            RefreshToken? refreshToken = await _refreshTokensRepository.GetValidTokenByToken(HashToken(token));
 
             if (refreshToken == null)
-                return ServiceResponse<RefreshTokens?>.Fail(default, 400, message: "User hasn't logined.");
+                return ServiceResponse<RefreshTokenDTO?>.Fail(default, 404, "Refresh Token doesn't exist.");
 
-            refreshToken.Revoked = true;
+            RefreshTokenDTO refreshTokenDTO = _mapper.Map(refreshToken);
+
+            return ServiceResponse<RefreshTokenDTO?>.Success(refreshTokenDTO);
+        }
+
+
+        public async Task<ServiceResponse<RefreshTokenDTO?>> RotateTokenAsync(string token)
+        {
+            RefreshToken? refreshToken = await _refreshTokensRepository.GetByTokenAsync(HashToken(token));
+
+            if (refreshToken == null)
+                return ServiceResponse<RefreshTokenDTO?>.Fail(default, 404, "Refresh Token doesn't exist.");
+
+            refreshToken.ExpiresAt.AddDays(7);
             refreshToken = await _refreshTokensRepository.UpdateAsync(refreshToken);
 
-            return ServiceResponse<RefreshTokens?>.Success(refreshToken, message: "Refresh tokens have revoked.");
-        }
+            RefreshTokenDTO refreshTokenDTO = _mapper.Map(refreshToken);
 
-
-        public async Task<ServiceResponse<RefreshTokens?>> ValidateTokenAsync(string token)
-        {
-            RefreshTokens? refreshTokens = await _refreshTokensRepository.GetValidTokenByToken(HashToken(token));
-
-            if (refreshTokens == null)
-                return ServiceResponse<RefreshTokens?>.Fail(default, 404, "Refresh Token doesn't exist.");
-
-            return ServiceResponse<RefreshTokens?>.Success(refreshTokens);
-        }
-
-
-        public async Task<ServiceResponse<RefreshTokens?>> RotateTokenAsync(string token)
-        {
-            RefreshTokens? refreshTokens = await _refreshTokensRepository.GetByTokenAsync(HashToken(token));
-
-            if (refreshTokens == null)
-                return ServiceResponse<RefreshTokens?>.Fail(default, 404, "Refresh Token doesn't exist.");
-
-            refreshTokens.ExpiresAt.AddDays(7);
-            refreshTokens = await _refreshTokensRepository.UpdateAsync(refreshTokens);
-
-            return ServiceResponse<RefreshTokens?>.Success(refreshTokens);
+            return ServiceResponse<RefreshTokenDTO?>.Success(refreshTokenDTO);
         }
 
 
@@ -98,7 +93,7 @@ namespace Keeper_AuthService.Services.Implementations
         }
 
 
-        public string HashToken(string token)
+        private string HashToken(string token)
         {
             using (SHA256 sha256 = SHA256.Create())
             {

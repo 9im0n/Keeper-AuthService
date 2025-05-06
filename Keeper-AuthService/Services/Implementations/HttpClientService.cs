@@ -1,6 +1,5 @@
 ﻿using Keeper_AuthService.Models.Services;
 using Keeper_AuthService.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
 using System.Text.Json;
 
 
@@ -74,38 +73,40 @@ namespace Keeper_AuthService.Services.Implementations
 
         private async Task<ServiceResponse<T?>> ProcessResponse<T>(HttpResponseMessage response)
         {
+            string rawJson = await response.Content.ReadAsStringAsync();
+
             try
             {
-                string rawJson = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    return ServiceResponse<T?>.Fail(default, (int)response.StatusCode, rawJson);
+
                 using JsonDocument doc = JsonDocument.Parse(rawJson);
                 JsonElement root = doc.RootElement;
 
-                if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
-                    return ServiceResponse<T?>.Fail(default, 500, root.GetProperty("Detail").GetString());
+                string? message = root.TryGetProperty("message", out var msgProp) ? msgProp.GetString() : null;
 
-                if (!root.TryGetProperty("message", out JsonElement message))
-                    return ServiceResponse<T?>.Fail(default, 400, "response doesn't have a message field.");
+                if (root.TryGetProperty("data", out var dataElement))
+                {
+                    T? data = JsonSerializer.Deserialize<T>(dataElement.GetRawText(), new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                    });
 
-                if (!response.IsSuccessStatusCode)
-                    return ServiceResponse<T?>.Fail(default, (int)response.StatusCode, message.GetString());
+                    return ServiceResponse<T?>.Success(data, (int)response.StatusCode, message);
+                }
 
-                if (!root.TryGetProperty("data", out JsonElement dataElement))
-                    return ServiceResponse<T?>.Fail(default, 400, "response doesn't have a data field.");
-
-                T? data = JsonSerializer.Deserialize<T>(dataElement.GetRawText(), new JsonSerializerOptions
+                T? fallbackData = JsonSerializer.Deserialize<T>(rawJson, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
                 });
 
-                return ServiceResponse<T?>.Success(data, (int)response.StatusCode, message.GetString());
+                return ServiceResponse<T?>.Success(fallbackData, (int)response.StatusCode, message ?? "Success");
             }
             catch (Exception ex)
             {
-                return ServiceResponse<T?>.Fail(default, 500, $"Auth Service: {ex.Message}");
+                return ServiceResponse<T?>.Fail(default, 500, $"Deserialization error: {ex.Message}");
             }
-           
         }
-
     }
 }
 

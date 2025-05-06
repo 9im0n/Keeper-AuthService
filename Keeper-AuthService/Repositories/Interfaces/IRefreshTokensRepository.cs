@@ -2,11 +2,12 @@
 
 namespace Keeper_AuthService.Repositories.Interfaces
 {
-    public interface IRefreshTokensRepository : IBaseRepository<RefreshTokens>
+    public interface IRefreshTokensRepository : IBaseRepository<RefreshToken>
     {
-        public Task<List<RefreshTokens>> GetByUserIdAsync(Guid Id);
-        public Task<RefreshTokens?> GetByTokenAsync(string token);
-        public Task<RefreshTokens?> GetValidTokenByToken(string token);
-        public Task<RefreshTokens?> GetValidTokenByUserId(Guid Id);
+        public Task<List<RefreshToken>> GetByUserIdAsync(Guid Id);
+        public Task<RefreshToken?> GetByTokenAsync(string token);
+        public Task<RefreshToken?> GetValidTokenByToken(string token);
+        public Task<RefreshToken?> GetValidTokenByUserId(Guid Id);
+        public Task RevokeValidTokensAsync(Guid userId);
     }
 }

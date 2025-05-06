@@ -3,8 +3,8 @@ using Keeper_AuthService.Models.Services;
 
 namespace Keeper_AuthService.Services.Interfaces
 {
-    public interface IJwtService
+    public interface IActivationPasswordService
     {
-        public ServiceResponse<string> GenerateToken(UserDTO user);
+        public ServiceResponse<ActivationPasswordDTO> Generate();
     }
 }

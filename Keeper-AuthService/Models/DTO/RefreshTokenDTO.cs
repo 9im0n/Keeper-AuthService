@@ -1,20 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Keeper_AuthService.Models.DB
+namespace Keeper_AuthService.Models.DTO
 {
-    public class RefreshTokens : BaseModel
+    public class RefreshTokenDTO
     {
-        [Required]
+        public Guid Id { get; set; }
         public Guid UserId { get; set; }
-
-        [Required]
-        public string Token { get; set; }
-
-        [Required]
+        public string Token { get; set; } = null!;
         public DateTime ExpiresAt { get; set; }
-
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
         public bool Revoked { get; set; } = false;
     }
 }
