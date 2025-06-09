@@ -19,7 +19,7 @@ namespace Keeper_AuthService.Services.Implementations
             _jwtSettings = jwtSettings.Value;
         }
 
-        public ServiceResponse<string> GenerateToken(UserDTO user)
+        public ServiceResponse<JwtDTO?> GenerateToken(UserDTO user)
         {
             List<Claim> claims = new List<Claim>()
             {
@@ -33,10 +33,15 @@ namespace Keeper_AuthService.Services.Implementations
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
                 signingCredentials: new SigningCredentials(_jwtSettings.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
-                );
+            );
+
+            Console.WriteLine(_jwtSettings.AccessTokenExpirationMinutes);
 
             string jwtToken =  new JwtSecurityTokenHandler().WriteToken(jwt);
-            return ServiceResponse<string>.Success(jwtToken);
+
+            JwtDTO jwtDTO = new JwtDTO() { AccessToken = jwtToken };
+
+            return ServiceResponse<JwtDTO>.Success(jwtDTO);
         }
     }
 }

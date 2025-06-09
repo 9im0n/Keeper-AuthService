@@ -21,8 +21,6 @@ namespace Keeper_AuthService.Services.Implementations
         {
             var message = new MimeMessage();
 
-            Console.WriteLine(_emailSettings.Email);
-            Console.WriteLine(_emailSettings.Password);
             try
             {
                 message.From.Add(new MailboxAddress("Keeper", _emailSettings.Email));

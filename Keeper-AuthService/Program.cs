@@ -42,14 +42,20 @@ namespace Keeper_AuthService
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
-                            builder.Configuration.GetSection("JwtSettings:Key").Value
+                            builder.Configuration.GetSection("JwtSettings:Key").Value!
                             )),
                         ValidAlgorithms = new string[] { SecurityAlgorithms.HmacSha256 },
                     };
                 });
 
             //Db
-            string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
+            string host = Environment.GetEnvironmentVariable("DB_HOST")!;
+            string port = Environment.GetEnvironmentVariable("DB_PORT")!;
+            string db = Environment.GetEnvironmentVariable("DB_NAME")!;
+            string user = Environment.GetEnvironmentVariable("DB_USER")!;
+            string password = Environment.GetEnvironmentVariable("DB_PASSWORD")!;
+
+            string connection = $"Host={host};Port={port};Database={db};Username={user};Password={password}";
             builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
 
             // Repositories

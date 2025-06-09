@@ -34,14 +34,14 @@ namespace Keeper_AuthService.Repositories.Implementations
         }
 
 
-        public async Task<T?> UpdateAsync(T obj)
+        public async Task<T?> UpdateAsync(T entity)
         {
-            T? oldObj = await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == obj.Id);
+            T? oldObj = await _appDbContext.Set<T>().FirstOrDefaultAsync(obj => obj.Id == entity.Id);
 
             if (oldObj == null)
                 return null;
 
-            _appDbContext.Entry(oldObj).CurrentValues.SetValues(obj);
+            _appDbContext.Entry(oldObj).CurrentValues.SetValues(entity);
             await _appDbContext.SaveChangesAsync();
 
             return oldObj;

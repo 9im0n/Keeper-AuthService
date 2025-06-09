@@ -54,10 +54,10 @@ namespace Keeper_AuthService.Controllers
         }
 
 
-        [HttpPost("updatejwt")]
+        [HttpPost("update-jwt")]
         public async Task<IActionResult> UpdateJwt([FromBody] UpdateJwtDTO updateJwt)
         {
-            ServiceResponse<string?> response = await _authService.UpdateJwt(updateJwt);
+            ServiceResponse<JwtDTO?> response = await _authService.UpdateJwt(updateJwt);
             return HandleServiceResponse(response);
         }
 
