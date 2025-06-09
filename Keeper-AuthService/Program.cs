@@ -10,6 +10,7 @@ using Keeper_AuthService.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using DotNetEnv;
 
 
 namespace Keeper_AuthService
@@ -19,6 +20,15 @@ namespace Keeper_AuthService
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+            if (builder.Environment.IsDevelopment())
+                builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+            else
+                Env.Load();
+
+            builder.Configuration.AddEnvironmentVariables();
 
             // Add services to the container
             builder.Services.AddHttpClient<IHttpClientService, HttpClientService>();
@@ -49,13 +59,7 @@ namespace Keeper_AuthService
                 });
 
             //Db
-            string host = Environment.GetEnvironmentVariable("DB_HOST")!;
-            string port = Environment.GetEnvironmentVariable("DB_PORT")!;
-            string db = Environment.GetEnvironmentVariable("DB_NAME")!;
-            string user = Environment.GetEnvironmentVariable("DB_USER")!;
-            string password = Environment.GetEnvironmentVariable("DB_PASSWORD")!;
-
-            string connection = $"Host={host};Port={port};Database={db};Username={user};Password={password}";
+            string connection = builder.Configuration.GetConnectionString("DefaultConnection")!;
             builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
 
             // Repositories
