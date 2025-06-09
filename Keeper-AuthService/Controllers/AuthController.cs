@@ -2,15 +2,11 @@
 using Keeper_AuthService.Models.DTO;
 using Keeper_AuthService.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace Keeper_AuthService.Controllers
 {
-    [ApiController]
     [Route("auth")]
-    public class AuthController : ControllerBase
+    public class AuthController : Controller
     {
         private readonly IAuthService _authService;
 
@@ -19,54 +15,22 @@ namespace Keeper_AuthService.Controllers
             _authService = authService;
         }
 
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
+        [HttpPost("registration")]
+        public async Task<IActionResult> Register([FromBody] CreateUserDTO newUser)
         {
-            ServiceResponse<object?> response = await _authService.Register(registerDTO); 
-            return HandleServiceResponse(response);
-        }
+            try
+            {
+                ServiceResponse<UsersDTO?> response = await _authService.Registration(newUser);
+                
+                if (!response.IsSuccess)
+                    return StatusCode(statusCode: response.Status, new { message = response.Message });
 
-        [HttpPost("activate")]
-        public async Task<IActionResult> Activation([FromBody] ActivationDTO activation)
-        {
-            ServiceResponse<object?> response = await _authService.Activation(activation);
-            return HandleServiceResponse(response);
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO login)
-        {
-            ServiceResponse<SessionDTO?> response = await _authService.Login(login);
-            return HandleServiceResponse(response);
-        }
-
-        [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            string? userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdString == null || !Guid.TryParse(userIdString, out Guid userId))
-                return Unauthorized(new { message = "Invalid token: user ID missing or malformed." });
-
-            ServiceResponse<object?> serviceResponse = await _authService.Logout(userId);
-            return HandleServiceResponse(serviceResponse);
-        }
-
-
-        [HttpPost("update-jwt")]
-        public async Task<IActionResult> UpdateJwt([FromBody] UpdateJwtDTO updateJwt)
-        {
-            ServiceResponse<JwtDTO?> response = await _authService.UpdateJwt(updateJwt);
-            return HandleServiceResponse(response);
-        }
-
-        private IActionResult HandleServiceResponse<T>(ServiceResponse<T> response)
-        {
-            if (!response.IsSuccess)
-                return StatusCode(statusCode: response.Status, new { message = response.Message });
-
-            return StatusCode(statusCode: response.Status, new { data = response.Data, message = response.Message });
+                return Created();
+            }
+            catch (Exception ex)
+            {
+                return Problem(statusCode: 500, detail: ex.Message);
+            }
         }
     }
 }

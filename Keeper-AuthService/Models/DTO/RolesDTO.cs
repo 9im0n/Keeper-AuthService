@@ -2,9 +2,11 @@
 
 namespace Keeper_AuthService.Models.DTO
 {
-    public class RoleDTO
+    public class RolesDTO
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
+
+        [Required]
+        public string Name { get; set; }
     }
 }
