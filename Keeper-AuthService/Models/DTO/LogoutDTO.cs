@@ -2,11 +2,10 @@
 
 namespace Keeper_AuthService.Models.DTO
 {
-    public class PermissionsDTO
+    public class LogoutDTO
     {
-        public int Id { get; set; }
-
         [Required]
-        public string Name { get; set; }
+        [EmailAddress]
+        public string Email { get; set; } = null!;
     }
 }

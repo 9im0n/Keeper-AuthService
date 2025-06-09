@@ -1,6 +1,52 @@
-@Keeper_AuthService_HostAddress = http://localhost:5282
+@api = http://localhost:5001
+@jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjNjNTk3OThmLTE0ZWQtNDE5NC05OGQ4LTI2NjM5NmJlZWU1ZSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6InVzZXIiLCJleHAiOjE3NDgyODc4NDAsImlzcyI6IkF1dGhTZXJ2aWNlIiwiYXVkIjoiQ2xpZW50In0.CwQmPlsIQW9qVBTWfE_WIpIGYTmpoq5gq_Fh54dszo8
+@refresh = RPk3Yu4/qf6ni34jn3JKeS4N5kgrNzP0s0Ne+vO6hIo=
 
-GET {{Keeper_AuthService_HostAddress}}/weatherforecast/
+POST {{api}}/auth/register
 Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "demanekeforov2006@gmail.com",
+  "password": "15192006Nn",
+  "confirmPassword": "15192006Nn"
+}
 
 ###
+
+POST {{api}}/auth/activate
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "demanekeforov2006@gmail.com",
+  "activationPassword": "s6lMIg"
+}
+
+###
+
+POST {{api}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "demanekeforov2006@gmail.com",
+  "password": "15192006Nn"
+}
+
+###
+
+POST {{api}}/auth/logout
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+###
+
+POST {{api}}/auth/update-jwt
+Accept: application/json
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh}}"
+}
