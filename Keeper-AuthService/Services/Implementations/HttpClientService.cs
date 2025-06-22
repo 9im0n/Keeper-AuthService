@@ -77,13 +77,13 @@ namespace Keeper_AuthService.Services.Implementations
 
             try
             {
-                if (!response.IsSuccessStatusCode)
-                    return ServiceResponse<T?>.Fail(default, (int)response.StatusCode, rawJson);
-
                 using JsonDocument doc = JsonDocument.Parse(rawJson);
                 JsonElement root = doc.RootElement;
 
-                string? message = root.TryGetProperty("message", out var msgProp) ? msgProp.GetString() : null;
+                string? message = root.TryGetProperty("message", out var msgProp) ? msgProp.GetString() : "";
+
+                if (!response.IsSuccessStatusCode)
+                    return ServiceResponse<T?>.Fail(default, (int)response.StatusCode, message);
 
                 if (root.TryGetProperty("data", out var dataElement))
                 {
